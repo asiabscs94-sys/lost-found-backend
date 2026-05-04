@@ -2,8 +2,10 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
     const connOptions = {
-        serverSelectionTimeoutMS: 5000,
+        serverSelectionTimeoutMS: 30000,
         socketTimeoutMS: 45000,
+        ssl: true,
+        tlsAllowInvalidCertificates: true
     };
 
     const connectWithRetry = async () => {

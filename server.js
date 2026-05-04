@@ -39,11 +39,17 @@ app.use(helmet());
 app.use(cors(corsOptions));
 app.use(cookieParser());
 
+// Trust proxy for Vercel
+app.set('trust proxy', 1);
+
 // Global Rate Limiter
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100, // limit each IP to 100 requests per windowMs
-    message: { success: false, message: 'Too many requests, please try again later.' }
+    message: { success: false, message: 'Too many requests, please try again later.' },
+    keyGenerator: (req) => {
+        return req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    }
 });
 app.use(limiter);
 
@@ -51,7 +57,10 @@ app.use(limiter);
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100, // limit each IP to 100 auth requests per 15 mins for testing
-    message: { success: false, message: 'Too many attempts, please try again in 15 minutes.' }
+    message: { success: false, message: 'Too many attempts, please try again in 15 minutes.' },
+    keyGenerator: (req) => {
+        return req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    }
 });
 
 app.use(express.json());
